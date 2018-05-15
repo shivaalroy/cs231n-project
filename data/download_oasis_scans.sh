@@ -5,11 +5,11 @@
 #================================================================
 #
 # Usage: ./download_oasis_scans.sh <input_file.csv> <directory_name> <xnat_central_username> <scan_type>
-# 
+#
 # Download scans of a specified type from OASIS3 on XNAT Central and organize the files
 #
 # Required inputs:
-# <input_file.csv> - A Unix formatted, comma-separated file containing a column for experiment_id 
+# <input_file.csv> - A Unix formatted, comma-separated file containing a column for experiment_id
 #       (e.g. OAS30001_MR_d0129)
 # <directory_name> - A directory path (relative or absolute) to save the scan files to
 # <xnat_central_username> - Your XNAT Central username used for accessing OASIS data on central.xnat.org
@@ -38,14 +38,14 @@ if [ ${#@} == 0 ]; then
     echo "OASIS scan download script"
     echo ""
     echo "This script downloads scans of the specified scan type based on a list of session ids in a csv file. "
-    echo ""   
+    echo ""
     echo "Usage: $0 input_file.csv directory_name central_username scan_type"
     echo "<input_file>: A Unix formatted, comma separated file containing the following columns:"
     echo "    experiment_id (e.g. OAS30001_MR_d0129)"
-    echo "<directory_name>: Directory path to save scan files to"  
-    echo "<xnat_central_username>: Your XNAT Central username used for accessing OASIS data (you will be prompted for your password)"   
-    echo "<scan_type>: (Optional) scan type you would like to download (e.g. T1w). You can also enter multiple comma-separated scan types (e.g. swi,T2w). Without this argument, all scans for the given experiment_id will be downloaded. "   
-else 
+    echo "<directory_name>: Directory path to save scan files to"
+    echo "<xnat_central_username>: Your XNAT Central username used for accessing OASIS data (you will be prompted for your password)"
+    echo "<scan_type>: (Optional) scan type you would like to download (e.g. T1w). You can also enter multiple comma-separated scan types (e.g. swi,T2w). Without this argument, all scans for the given experiment_id will be downloaded. "
+else
 
     # Get the input arguments
     INFILE=$1
@@ -96,7 +96,7 @@ else
                 echo "Found a ${SCANTYPE} scan for ${EXPERIMENT_ID}."
             else
                 echo "Downloaded all scans for ${EXPERIMENT_ID}."
-            fi  
+            fi
 
             echo "Unzipping scan(s) and rearranging files."
 
@@ -125,7 +125,7 @@ else
                 echo "Did not find a ${SCANTYPE} scan for ${EXPERIMENT_ID}."
             else
                 echo "Could not download all scans for ${EXPERIMENT_ID}."
-            fi            
+            fi
         fi
 
         # Remove the original zip file
