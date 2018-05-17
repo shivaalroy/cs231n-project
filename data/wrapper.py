@@ -5,20 +5,16 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
-import re
-import csv
-import glob
 import nibabel as nib
-import glob
 import os.path as osp
 import numpy as np
 from PIL import Image
-
+    
 class OASIS(Dataset):
     """
     A customized data loader for OASIS.
     """
-    def __init__(self, root, labels_csv, transform=None, preload=False):
+    def __init__(self, root, filenames, transform=None, preload=False):
         """ Intialize the OASIS dataset
 
         Args:
@@ -28,45 +24,25 @@ class OASIS(Dataset):
         """
         self.images = None
         self.labels = None
-        self.filenames = []
+        self.filenames = filenames
         self.root = root
         self.transform = transform
-
-        # get labels_csv
-        # check if path exists
-
-        # read filenames
-        filenames = glob.glob(osp.join(root, 'OAS*', 'anat1', '*T2w.nii.gz'))
-        filenames = [x for x in filenames if 'TSE' in x]
-        print(filenames[:10])
-        # print(filenames)
-        print(len(filenames))
-
-        # read in labels_csv and create dictionary
-        label_array = np.genfromtxt(labels_csv, delimiter=',', dtype='str', skip_header=1)
-        print(label_array[:10])
-        print(len(label_array))
-
-        #create a dictionary from the ids to the labels
-        label_dict = {}
-        for entry in label_array:
-            label_dict[entry[0]] = entry[1]
-
-        for fn in filenames:
-        #extract experiment_id from fn # 'scans/experiment_id/...'
-            experiment_id = re.split('/', fn)[1]
-            # check if the id has a corresponding label, then append it to the dict
-            if experiment_id in label_dict:
-                label = label_dict[experiment_id]
-                # check if label isn't empty string
-                if label:
-                    self.filenames.append((fn, float(label)))
-       
-        #look at 10 items in the dict
-        print(self.filenames[:10])
-        self.len = len(self.filenames)
-        print(self.len)
-
+        
+        # if preloaded put set labels and images
+        if preload:
+            self.labels = []
+            self.images = []
+            self.len = 0
+            for path, label in self.filenames:
+                img = nib.load(path).get_data()
+                img = (255.0 / img.max() * img).astype(np.uint8)
+                for i in range(img.shape[2]):
+                    self.len += 1
+                    image = img[:,:,i]
+                    self.images.append(image)
+                    self.labels.append(label)
+            print('finished preloading')
+            
     def __getitem__(self, index):
         """ Get a sample from the dataset
         """
@@ -79,17 +55,15 @@ class OASIS(Dataset):
             path, label = self.filenames[index]
 
             img = nib.load(path).get_data()
-            image_array = (255.0 / img.max() * img).astype(np.uint8)
+            image = (255.0 / img.max() * img).astype(np.uint8)
      
         # May use transform function to transform samples
         # e.g., random crop, whitening
         if self.transform is not None:
-            image_array = self.transform(image_array)
-            '''for i in range(image_array.shape[2]):
-                image = image_array[:,:,i]
-                image_array[:,:,i] = self.transform(image)'''
+            image = self.transform(image)
+            
         # return image and label
-        return image_array, label
+        return image, label
 
     def __len__(self):
         """
