@@ -1,3 +1,6 @@
 .DS_Store
 *.pyc
 scans/
+.env/
+.vscode/
+preview_scan*/

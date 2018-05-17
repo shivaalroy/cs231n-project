@@ -9,6 +9,7 @@ import re
 import csv
 import glob
 import nibabel as nib
+import glob
 import os.path as osp
 import numpy as np
 from PIL import Image
@@ -27,7 +28,7 @@ class OASIS(Dataset):
         """
         self.images = None
         self.labels = None
-        self.filenames = [] 
+        self.filenames = []
         self.root = root
         self.transform = transform
 
@@ -65,15 +66,6 @@ class OASIS(Dataset):
         print(self.filenames[:10])
         self.len = len(self.filenames)
         print(self.len)
-
-        # for fn in filenames:
-        #   extract experiment_id from fn # 'scans/experiment_id/...'
-        # for each
-
-        #     for fn in filenames:
-        #         self.filenames.append((fn, i)) # (filename, label) pair
-
-        # self.len = len(self.filenames)
 
     def __getitem__(self, index):
         """ Get a sample from the dataset
