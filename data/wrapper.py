@@ -1,15 +1,8 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torchvision
-import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 import nibabel as nib
-import os.path as osp
 import numpy as np
 from PIL import Image
-    
+
 class OASIS(Dataset):
     """
     A customized data loader for OASIS.
@@ -19,7 +12,7 @@ class OASIS(Dataset):
 
         Args:
             - root: root directory of the dataset
-            - tranform: a custom tranform function
+            - transform: a custom transform function
             - preload: if preload the dataset into memory
         """
         self.images = None
@@ -27,7 +20,7 @@ class OASIS(Dataset):
         self.filenames = filenames
         self.root = root
         self.transform = transform
-        
+
         # if preloaded put set labels and images
         if preload:
             self.labels = []
@@ -42,7 +35,7 @@ class OASIS(Dataset):
                     self.images.append(image)
                     self.labels.append(label)
             print('finished preloading')
-            
+
     def __getitem__(self, index):
         """ Get a sample from the dataset
         """
@@ -56,12 +49,12 @@ class OASIS(Dataset):
 
             img = nib.load(path).get_data()
             image = (255.0 / img.max() * img).astype(np.uint8)
-     
+
         # May use transform function to transform samples
         # e.g., random crop, whitening
         if self.transform is not None:
             image = self.transform(image)
-            
+
         # return image and label
         return image, label
 
