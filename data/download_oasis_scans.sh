@@ -30,8 +30,7 @@
 # Author: Sarah Keefe
 #
 #
-unset module
-
+#unset module
 # usage instructions
 if [ ${#@} == 0 ]; then
     echo ""
@@ -81,14 +80,15 @@ else
         fi
 
         # Set up the download URL and make a cURL call to download the requested scans in zip format
+        #download_url=https://central.xnat.org/data/archive/projects/OASIS3/subjects/${SUBJECT_ID%$'\r'}/experiments/${EXPERIMENT_ID%$'\r'}/scans/${SCANTYPE%$'\r'}/files?format=zip #
         download_url=https://central.xnat.org/data/archive/projects/OASIS3/subjects/${SUBJECT_ID}/experiments/${EXPERIMENT_ID}/scans/${SCANTYPE}/files?format=zip
-
         curl -k -b JSESSIONID=$JSESSION -o $DIRNAME/$EXPERIMENT_ID.zip $download_url
+        #curl -k -b JSESSIONID=${JSESSION%$'\r'} -o ${DIRNAME%$'\r'}/${EXPERIMENT_ID%$'\r'}.zip "$download_url"%$'\r' #
 
         # Check the zip file to make sure we downloaded something
         # If the zip file is invalid, we didn't download a scan so there is probably no scan of that type
         # If the zip file is valid, unzip and rearrange the files
-        if zip -Tq $DIRNAME/$EXPERIMENT_ID.zip > /dev/null; then
+        if zip -Tq ${DIRNAME%$'\r'}/${EXPERIMENT_ID%$'\r'}.zip > /dev/null; then
             # We found a successfully downloaded valid zip file
 
             if ! [ $SCANTYPE = "ALL" ]
