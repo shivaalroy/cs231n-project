@@ -1,6 +1,8 @@
 .DS_Store
 *.pyc
-scans/
 .env/
 .vscode/
-preview_scan*/
+.ipynb_checkpoints/
+data/preview_scan/
+data/scans/
+
