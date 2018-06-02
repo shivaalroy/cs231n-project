@@ -32,7 +32,7 @@ def split_data(root, labels_csv):
             if label:
                 filename_labels.append((fn, float(label)))
     print('num files with labels is', len(filename_labels))
-    
+
     random.shuffle(filename_labels)
     size = len(filename_labels)
     train_filenames = filename_labels[:int(.8*size)]
