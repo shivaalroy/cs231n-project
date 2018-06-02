@@ -31,18 +31,6 @@ def split_data(base_dir, labels_csv, train_size=0.7):
     print('num experiments is', len(filename_labels))
     print('counts per class:', counts)
 
-    # for filename_label in filename_labels[:5]:
-    #     print(filename_label)
-
-    # size = len(filename_labels)
-    # max_train_idx = int(train_size*size)
-    # max_val_idx = int((train_size+(1-train_size)/2) * size)
-
-    # np.random.shuffle(filename_labels)
-    # train_filenames = filename_labels[:max_train_idx]
-    # val_filenames = filename_labels[max_train_idx:max_val_idx]
-    # test_filenames = filename_labels[max_val_idx:]
-
     train_filenames, test_filenames = train_test_split(filename_labels,
                                                         train_size=train_size,
                                                         random_state=42,
