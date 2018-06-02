@@ -7,7 +7,7 @@ class OASIS(Dataset):
     """
     A customized data loader for OASIS.
     """
-    def __init__(self, root, filenames, transform=None, preload=False):
+    def __init__(self, filename_label_list, mean_pixel_threshold=0.7, discard_front_proportion=0.3):
         """ Intialize the OASIS dataset
 
         Args:
@@ -15,61 +15,66 @@ class OASIS(Dataset):
             - transform: a custom transform function
             - preload: if preload the dataset into memory
         """
-        self.images = None
-        self.labels = None
-        self.filenames = filenames
-        self.root = root
-        self.transform = transform
+        self.slices = []
+        self.labels = []
+        self.mean_pixel_threshold = mean_pixel_threshold
+        self.discard_front_proportion = discard_front_proportion
 
-        # if preloaded put set labels and images
-        if preload:
-            self.labels = []
-            self.images = []
-            self.len = 0
-            for path, label in self.filenames:
-                img = nib.load(path).get_data()
-                img = (255.0 / img.max() * img).astype(np.uint8)
-                for i in range(img.shape[2]):
-                    self.len += 1
-                    print('nib image shape:', img.shape)
-                    image = np.dstack([img[:,:,i]] * 3)
-                    print('stacked image shape:', image.shape)
-                    self.images.append(image)
-                    self.labels.append(label)
-            print('finished preloading')
+        for filename, label in filename_label_list:
+            select_slices(filename, label)
+
+    def select_slices(self, filename, label):
+        # TODO
+        img = OASIS.get_image(filename)
+        img = OASIS.crop_image(img)
+        img = OASIS.resize_and_scale_image(img)
+        slice_indices = OASIS.filter_slices(img)
+        for idx in slice_indices:
+            # self.slices append img[idx]
+            # self.labels append label
+
+    @staticmethod
+    def get_image(path):
+        img = nib.load(path).get_data()
+        # is this the rescaling?
+        return (255.0 / img.max() * img).astype(np.uint8)
+
+    @staticmethod
+    def crop_image(img):
+        # TODO
+        return img
+
+    @staticmethod
+    def filter_slices(img):
+        img_means = img.reshape(-1, img.shape[2]).mean(axis=0)
+        # zero out first discard_front_proportion
+        front_index = int(self.discard_front_proportion * img_means.shape[0])
+        img_means[:front_index] = 0
+        threshold = img_means.max() * self.mean_pixel_threshold
+        return img_means > threshold
+
+    @staticmethod
+    def resize_and_scale_image(img):
+        # TODO: figure out what to resize to
+        # TODO: figure out what to rescale to
+        return img
 
     def __getitem__(self, index):
         """ Get a sample from the dataset
         """
-        if self.images is not None:
-            # If dataset is preloaded
-            image = self.images[index]
-            label = self.labels[index]
-        else:
-            # If on-demand data loading
-            path, label = self.filenames[index]
+        # If dataset is preloaded
+        img_slice = self.slices[index]
+        # convert img_slice to 3-channel
+        #     image = np.dstack([img[:,:,i]] * 3)
 
-            img = nib.load(path).get_data()
-            image = (255.0 / img.max() * img).astype(np.uint8)
-            print('Not pre-loaded, before stacking')
-            print(image.shape)
-            image = np.dstack([image] * 3)
-            print('Not pre-loaded, after stacking')
-            print(image.shape)
-
-        # May use transform function to transform samples
-        # e.g., random crop, whitening
-        if self.transform is not None:
-            image = self.transform(image)
-
-        # return image and label
-        return image, label
+        label = self.labels[index]
+        return img_slice, label
 
     def __len__(self):
         """
         Total number of samples in the dataset
         """
-        return self.len
+        return len(self.slices)
 
 def main():
     dataset = OASIS('scans', 'OASIS3_MRID2Label_051418.csv')

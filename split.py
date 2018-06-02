@@ -7,7 +7,7 @@ import random
 import nibabel as nib
 
 #splits the data into train, validation, and test filenames
-def split_data(root, labels_csv):
+def split_data(base_dir, labels_csv):
     # read in labels_csv and create dictionary
     label_array = np.genfromtxt(labels_csv, delimiter=',', dtype='str', skip_header=1)
 
@@ -16,9 +16,9 @@ def split_data(root, labels_csv):
     print('num labels is', len(label_dict))
 
     # read filenames
-    all_filenames = glob.glob(osp.join(root, 'OAS*', '*', '*T2w.nii.gz'))
+    all_filenames = glob.glob(osp.join(base_dir, 'OAS*', '*', '*T2w.nii.gz'))
     all_filenames = [filename for filename in all_filenames if 'TSE' in filename]
-    all_filenames = [(filename[len(root)+1:].split('/')[0], filename) for filename in all_filenames]
+    all_filenames = [(filename[len(base_dir)+1:].split('/')[0], filename) for filename in all_filenames]
     print('num filenames is', len(all_filenames))
 
     # findings:
@@ -28,7 +28,7 @@ def split_data(root, labels_csv):
 
 
 
-    counter = 0
+    # counter = 0
     all_experiments = {}
     for experiment, path in all_filenames:
         if experiment not in label_dict: continue
@@ -37,8 +37,8 @@ def split_data(root, labels_csv):
         # img = (255.0 / img.max() * img).astype(np.uint8)
         # print(img.shape)
         if experiment not in all_experiments:
-            all_experiments[experiment] = [path, label_dict[experiment]]
-        counter += 1
+            all_experiments[experiment] = (path, label_dict[experiment])
+        # counter += 1
         # if counter == 10: break
     print('num experiments is', len(all_experiments))
 
