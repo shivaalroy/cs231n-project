@@ -3,6 +3,6 @@
 .env/
 .vscode/
 .ipynb_checkpoints/
-data/preview_scan/
+data/preview_scan*/
 data/scans/
 
