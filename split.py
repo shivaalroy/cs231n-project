@@ -1,18 +1,16 @@
 import glob
-import os
 import os.path as osp
 import numpy as np
-import re
-import random
-import nibabel as nib
+from sklearn.model_selection import train_test_split
 
-#splits the data into train, validation, and test filenames
-def split_data(base_dir, labels_csv):
+def split_data(base_dir, labels_csv, train_size=0.7):
+    """ Splits the data into train, validation, and test filenames"""
     # read in labels_csv and create dictionary
     label_array = np.genfromtxt(labels_csv, delimiter=',', dtype='str', skip_header=1)
 
     # create a dictionary from the ids to the labels
-    label_dict = {experiment: label for experiment, label in label_array if label != ''}
+    label_mapping = {'0.0': 0, '0.5': 1, '1.0': 2}
+    label_dict = {experiment: label_mapping[label] for experiment, label in label_array if label in label_mapping}
     print('num labels is', len(label_dict))
 
     # read filenames
@@ -21,48 +19,39 @@ def split_data(base_dir, labels_csv):
     all_filenames = [(filename[len(base_dir)+1:].split('/')[0], filename) for filename in all_filenames]
     print('num filenames is', len(all_filenames))
 
-    # findings:
-        # num images that are square 1433
-        # if img.shape[0] != img.shape[1]: continue
-
-
-
-
-    # counter = 0
-    all_experiments = {}
+    counts = [0]*3
+    experiments = set()
+    filename_labels = []
     for experiment, path in all_filenames:
         if experiment not in label_dict: continue
-        # print(experiment, path)
-        # img = nib.load(path).get_data()
-        # img = (255.0 / img.max() * img).astype(np.uint8)
-        # print(img.shape)
-        if experiment not in all_experiments:
-            all_experiments[experiment] = (path, label_dict[experiment])
-        # counter += 1
-        # if counter == 10: break
-    print('num experiments is', len(all_experiments))
+        if experiment not in experiments:
+            experiments.add(experiment)
+            filename_labels.append((path, label_dict[experiment]))
+            counts[label_dict[experiment]] += 1
+    print('num experiments is', len(filename_labels))
+    print('counts per class:', counts)
 
-    for key in list(all_experiments.keys())[:5]:
-        print(key, all_experiments[key])
+    # for filename_label in filename_labels[:5]:
+    #     print(filename_label)
 
-    return
+    # size = len(filename_labels)
+    # max_train_idx = int(train_size*size)
+    # max_val_idx = int((train_size+(1-train_size)/2) * size)
 
+    # np.random.shuffle(filename_labels)
+    # train_filenames = filename_labels[:max_train_idx]
+    # val_filenames = filename_labels[max_train_idx:max_val_idx]
+    # test_filenames = filename_labels[max_val_idx:]
 
-    filename_labels = [] #stores (filename, label) tuples
-    for fn in all_filenames:
-    #extract experiment_id from fn # 'scans/experiment_id/...'
-        experiment_id = re.split('/', fn)[1]
-        # check if the id has a corresponding label, then append it to the dict
-        if experiment_id in label_dict:
-            label = label_dict[experiment_id]
-            # check if label isn't empty string
-            if label:
-                filename_labels.append((fn, float(label)))
-    print('num files with labels is', len(filename_labels))
+    train_filenames, test_filenames = train_test_split(filename_labels,
+                                                        train_size=train_size,
+                                                        random_state=42,
+                                                        shuffle=True,
+                                                        stratify=list(zip(*filename_labels))[1])
+    val_filenames, test_filenames = train_test_split(test_filenames,
+                                                        train_size=0.5,
+                                                        random_state=42,
+                                                        shuffle=True,
+                                                        stratify=list(zip(*test_filenames))[1])
 
-    random.shuffle(filename_labels)
-    size = len(filename_labels)
-    train_filenames = filename_labels[:int(.8*size)]
-    val_filenames = filename_labels[int(.8*size):int(.9*size)]
-    test_filenames = filename_labels[int(.9*size):]
-    return (train_filenames, val_filenames, test_filenames)
+    return train_filenames, val_filenames, test_filenames
