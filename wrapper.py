@@ -9,7 +9,7 @@ class OASIS(Dataset):
     """
     A customized data loader for OASIS.
     """
-    def __init__(self, filename_label_list, mean_pixel_threshold=0.7, discard_front_proportion=0.3):
+    def __init__(self, filename_label_list, input_size = 299, mean_pixel_threshold=0.7, discard_front_proportion=0.3):
         """ Intialize the OASIS dataset
 
         Args:
@@ -22,7 +22,7 @@ class OASIS(Dataset):
         self.mean_pixel_threshold = mean_pixel_threshold
         self.discard_front_proportion = discard_front_proportion
         #resize to 360 and then crop to 299, which is the input size for inception
-        self.transform = transforms.Compose([transforms.Resize(299),
+        self.transform = transforms.Compose([transforms.Resize(input_size),
                                             transforms.ToTensor(),
                                             transforms.Normalize([0.5,0.5,0.5],[0.25,0.25,0.25])])
                                             
@@ -32,6 +32,10 @@ class OASIS(Dataset):
 
     def select_slices(self, filename, label):
         img = OASIS.get_image(filename)
+        
+        if len(img.shape) != 3:
+            return
+        
         img = OASIS.crop_image(img)
 
         slice_indices = OASIS.filter_slices(self, img)

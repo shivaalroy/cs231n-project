@@ -20,18 +20,19 @@ from split import split_data
 
 scans_home = 'data/scans'
 labels_file = 'data/OASIS3_MRID2Label_052918.csv'
+stats_filepath = 'outputs_increased_weights.txt'
 n_classes = 3
 freeze_layers = False
 start_freeze_layer = 'Mixed_5d'
 use_parallel = True
 
-loss_weights = torch.tensor([1.,3.,5.])
+loss_weights = torch.tensor([1.,10., 40.])
 if torch.cuda.is_available():
     loss_weights = loss_weights.cuda()
 criterion = nn.CrossEntropyLoss(weight=loss_weights)
 optimizer_type = torch.optim.Adam
 lr_scheduler_type = optim.lr_scheduler.StepLR
-num_epochs = 5
+num_epochs = 20
 best_model_filepath = None
 load_model_filepath = None
 #load_model_filepath = 'model_best.pth.tar'
@@ -48,7 +49,7 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, schedul
 
     best_model_wts = model.state_dict()
     best_acc = 0.0
-    
+
     # list of models from all epochs
     model_list = []
 
@@ -98,8 +99,10 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, schedul
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.item() / dataset_sizes[phase]
-            
+
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            with open(stats_filepath, 'a') as f:
+                f.write('Epoch {} {} Loss: {:.4f} Acc: {:.4f}\n'.format(epoch, phase, epoch_loss, epoch_acc))
 
             # deep copy the model
             # TODO: use a better metric than accuracy?
@@ -110,13 +113,15 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, schedul
                 state = {'epoch': epoch, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()}
                 if best_model_filepath is not None:
                     torch.save(state, best_model_filepath)
-        
+
         model_list.append(copy.deepcopy(model))
         print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
+    with open(stats_filepath, 'a') as f:
+        f.write('Best val Acc: {:4f}\n'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
@@ -160,9 +165,9 @@ def run():
     print('label counts for validation set: ', get_counts(val_filenames))
     print('label counts for test set: ', get_counts(test_filenames))
 
-    train_dataset = OASIS(train_filenames[:3])
-    val_dataset = OASIS(val_filenames[:1])
-    test_dataset = OASIS(test_filenames[:3])
+    train_dataset = OASIS(train_filenames)
+    val_dataset = OASIS(val_filenames)
+    test_dataset = OASIS(test_filenames)
     '''print([y for img, y in train_dataset])
     print([y for img, y in val_dataset])
     print([y for img, y in test_dataset])'''
@@ -202,6 +207,15 @@ def run():
                 for params in child.parameters():
                     params.requires_grad = True
             ct.append(name)
+
+    # He initialization
+    def init_weights(m):
+        # if type(m) == nn.Linear or type(m) == nn.Conv1d:
+        if m.requires_grad:
+            nn.init.kaiming_normal_(m.weight)
+
+    inception.apply(init_weights)
+
     # To view which layers are freezed and which layers are not freezed:
     for name, child in inception.named_children():
         for name_2, params in child.named_parameters():
@@ -227,17 +241,21 @@ def run():
                              exp_lr_scheduler,
                              use_cuda,
                              num_epochs)
-    
-    
+
+    epoch = 0
     for model in model_list:
-        predictions = evaluate_model(model, testset_loader, len(test_dataset), use_cuda)
-        true_y = [y for img, y in test_dataset]
-        print(classification_report(true_y, predictions))
+        predictions = evaluate_model(model, valset_loader, len(val_dataset), use_cuda)
+        true_y = [y for img, y in val_dataset]
+        report = classification_report(true_y, predictions)
+        with open(stats_filepath, 'a') as f:
+            f.write('\n Epoch {} \n'.format(epoch))
+            f.write(report)
+        epoch += 1
+        print(report)
 
     '''predictions = evaluate_model(best_model, testset_loader, len(test_dataset), use_cuda)
     true_y = [y for img, y in test_dataset]
     print(classification_report(true_y, predictions))'''
-
 
 if __name__ == "__main__":
     run()
