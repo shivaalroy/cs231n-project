@@ -1,0 +1,221 @@
+Epoch 0 train Loss: 0.1075 Acc: 0.6178
+Epoch 0 val Loss: 0.0929 Acc: 0.5625
+Epoch 1 train Loss: 0.1032 Acc: 0.6414
+Epoch 1 val Loss: 0.0801 Acc: 0.6907
+Epoch 2 train Loss: 0.1032 Acc: 0.6352
+Epoch 2 val Loss: 0.0892 Acc: 0.6246
+Epoch 3 train Loss: 0.1023 Acc: 0.6495
+Epoch 3 val Loss: 0.1007 Acc: 0.4921
+Epoch 4 train Loss: 0.1043 Acc: 0.6484
+Epoch 4 val Loss: 0.0959 Acc: 0.6075
+Epoch 5 train Loss: 0.1004 Acc: 0.6623
+Epoch 5 val Loss: 0.0860 Acc: 0.6630
+Epoch 6 train Loss: 0.1005 Acc: 0.6543
+Epoch 6 val Loss: 0.0908 Acc: 0.6025
+Epoch 7 train Loss: 0.0966 Acc: 0.6714
+Epoch 7 val Loss: 0.0777 Acc: 0.6913
+Epoch 8 train Loss: 0.0952 Acc: 0.6764
+Epoch 8 val Loss: 0.0767 Acc: 0.7076
+Epoch 9 train Loss: 0.0944 Acc: 0.6734
+Epoch 9 val Loss: 0.0754 Acc: 0.6955
+Epoch 10 train Loss: 0.0941 Acc: 0.6732
+Epoch 10 val Loss: 0.0771 Acc: 0.6833
+Epoch 11 train Loss: 0.0932 Acc: 0.6748
+Epoch 11 val Loss: 0.0712 Acc: 0.7165
+Epoch 12 train Loss: 0.0926 Acc: 0.6724
+Epoch 12 val Loss: 0.0720 Acc: 0.7153
+Epoch 13 train Loss: 0.0916 Acc: 0.6817
+Epoch 13 val Loss: 0.0732 Acc: 0.7044
+Epoch 14 train Loss: 0.0907 Acc: 0.6825
+Epoch 14 val Loss: 0.0741 Acc: 0.6923
+Epoch 15 train Loss: 0.0905 Acc: 0.6785
+Epoch 15 val Loss: 0.0769 Acc: 0.6726
+Epoch 16 train Loss: 0.0904 Acc: 0.6805
+Epoch 16 val Loss: 0.0739 Acc: 0.6982
+Epoch 17 train Loss: 0.0910 Acc: 0.6784
+Epoch 17 val Loss: 0.0758 Acc: 0.6769
+Epoch 18 train Loss: 0.0902 Acc: 0.6852
+Epoch 18 val Loss: 0.0711 Acc: 0.7112
+Epoch 19 train Loss: 0.0907 Acc: 0.6808
+Epoch 19 val Loss: 0.0709 Acc: 0.7119
+Best val Acc: 0.716472
+
+ Epoch 0 
+             precision    recall  f1-score   support
+
+          0       0.85      0.62      0.72      3447
+          1       0.21      0.25      0.23       720
+          2       0.14      0.67      0.23       210
+
+avg / total       0.71      0.56      0.61      4377
+
+ Epoch 1 
+             precision    recall  f1-score   support
+
+          0       0.84      0.80      0.82      3447
+          1       0.25      0.37      0.30       720
+          2       0.00      0.00      0.00       210
+
+avg / total       0.70      0.69      0.69      4377
+
+ Epoch 2 
+             precision    recall  f1-score   support
+
+          0       0.84      0.70      0.77      3447
+          1       0.21      0.44      0.28       720
+          2       1.00      0.00      0.01       210
+
+avg / total       0.75      0.62      0.65      4377
+
+ Epoch 3 
+             precision    recall  f1-score   support
+
+          0       0.85      0.52      0.64      3447
+          1       0.16      0.36      0.22       720
+          2       0.17      0.56      0.26       210
+
+avg / total       0.70      0.49      0.55      4377
+
+ Epoch 4 
+             precision    recall  f1-score   support
+
+          0       0.84      0.72      0.78      3447
+          1       0.25      0.01      0.02       720
+          2       0.12      0.79      0.21       210
+
+avg / total       0.71      0.61      0.62      4377
+
+ Epoch 5 
+             precision    recall  f1-score   support
+
+          0       0.83      0.80      0.82      3447
+          1       0.00      0.00      0.00       720
+          2       0.14      0.70      0.23       210
+
+avg / total       0.66      0.66      0.65      4377
+
+ Epoch 6 
+             precision    recall  f1-score   support
+
+          0       0.86      0.68      0.76      3447
+          1       0.22      0.17      0.20       720
+          2       0.14      0.72      0.24       210
+
+avg / total       0.72      0.60      0.64      4377
+
+ Epoch 7 
+             precision    recall  f1-score   support
+
+          0       0.85      0.81      0.83      3447
+          1       0.21      0.17      0.19       720
+          2       0.23      0.54      0.33       210
+
+avg / total       0.71      0.69      0.70      4377
+
+ Epoch 8 
+             precision    recall  f1-score   support
+
+          0       0.85      0.83      0.84      3447
+          1       0.23      0.20      0.22       720
+          2       0.24      0.46      0.32       210
+
+avg / total       0.72      0.71      0.71      4377
+
+ Epoch 9 
+             precision    recall  f1-score   support
+
+          0       0.85      0.81      0.83      3447
+          1       0.22      0.19      0.21       720
+          2       0.24      0.57      0.34       210
+
+avg / total       0.72      0.70      0.70      4377
+
+ Epoch 10 
+             precision    recall  f1-score   support
+
+          0       0.86      0.79      0.82      3447
+          1       0.22      0.20      0.21       720
+          2       0.22      0.57      0.31       210
+
+avg / total       0.72      0.68      0.70      4377
+
+ Epoch 11 
+             precision    recall  f1-score   support
+
+          0       0.85      0.85      0.85      3447
+          1       0.23      0.14      0.17       720
+          2       0.21      0.48      0.29       210
+
+avg / total       0.72      0.72      0.71      4377
+
+ Epoch 12 
+             precision    recall  f1-score   support
+
+          0       0.86      0.83      0.85      3447
+          1       0.26      0.22      0.24       720
+          2       0.24      0.45      0.31       210
+
+avg / total       0.73      0.72      0.72      4377
+
+ Epoch 13 
+             precision    recall  f1-score   support
+
+          0       0.86      0.82      0.84      3447
+          1       0.25      0.19      0.22       720
+          2       0.21      0.52      0.30       210
+
+avg / total       0.73      0.70      0.71      4377
+
+ Epoch 14 
+             precision    recall  f1-score   support
+
+          0       0.86      0.80      0.83      3447
+          1       0.24      0.19      0.22       720
+          2       0.21      0.59      0.31       210
+
+avg / total       0.73      0.69      0.70      4377
+
+ Epoch 15 
+             precision    recall  f1-score   support
+
+          0       0.86      0.77      0.82      3447
+          1       0.23      0.21      0.22       720
+          2       0.20      0.60      0.31       210
+
+avg / total       0.73      0.67      0.69      4377
+
+ Epoch 16 
+             precision    recall  f1-score   support
+
+          0       0.86      0.81      0.83      3447
+          1       0.25      0.22      0.24       720
+          2       0.22      0.53      0.31       210
+
+avg / total       0.73      0.70      0.71      4377
+
+ Epoch 17 
+             precision    recall  f1-score   support
+
+          0       0.87      0.77      0.82      3447
+          1       0.24      0.24      0.24       720
+          2       0.21      0.58      0.31       210
+
+avg / total       0.73      0.68      0.70      4377
+
+ Epoch 18 
+             precision    recall  f1-score   support
+
+          0       0.86      0.83      0.84      3447
+          1       0.27      0.22      0.24       720
+          2       0.22      0.50      0.30       210
+
+avg / total       0.73      0.71      0.72      4377
+
+ Epoch 19 
+             precision    recall  f1-score   support
+
+          0       0.86      0.83      0.85      3447
+          1       0.26      0.20      0.22       720
+          2       0.22      0.50      0.30       210
+
+avg / total       0.73      0.71      0.72      4377

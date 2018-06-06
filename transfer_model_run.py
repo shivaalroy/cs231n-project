@@ -13,14 +13,14 @@ import time
 from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
 from torch.autograd import Variable
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, f1_score
 
 from wrapper import OASIS
 from split import split_data
 
 scans_home = 'data/scans'
 labels_file = 'data/OASIS3_MRID2Label_052918.csv'
-stats_filepath = 'outputs_increased_weights.txt'
+stats_filepath = 'test_outputs.txt'
 n_classes = 3
 freeze_layers = False
 start_freeze_layer = 'Mixed_5d'
@@ -44,10 +44,11 @@ def get_counts(filename_labels):
     return counts
 
 
-def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, use_gpu, num_epochs=5):
+def train_model(model, dataloaders, datasets, dataset_sizes, criterion, optimizer, scheduler, use_gpu, num_epochs=5):
     since = time.time()
 
     best_model_wts = model.state_dict()
+    best_f1_score = 0.0
     best_acc = 0.0
 
     # list of models from all epochs
@@ -105,15 +106,32 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, schedul
                 f.write('Epoch {} {} Loss: {:.4f} Acc: {:.4f}\n'.format(epoch, phase, epoch_loss, epoch_acc))
 
             # deep copy the model
-            # TODO: use a better metric than accuracy?
-            if phase == 'val' and epoch_acc > best_acc:
-                best_acc = epoch_acc
-                best_model_wts = model.state_dict()
+            if phase == 'val':
+                predictions = evaluate_model(model, dataloaders['val'], dataset_sizes['val'], use_gpu)
+                true_y = [y for img, y in datasets['val']]
+                f1 = f1_score(true_y, predictions, average = 'macro')
+                all_f1s = f1_score(true_y, predictions, average = None)
+                
+                # print f1 score and write to file
+                print('macro f1_score: {:.4f}'.format(f1))
+                print('all f1_scores: {}'.format(str(all_f1s)))
+                with open(stats_filepath, 'a') as f:
+                    f.write('Epoch {} macro f1_score = {:.4f} \n'.format(epoch, f1))
+                    f.write('all f1_scores: {} \n'.format(str(all_f1s)))
+                
+                #update epoch acc
+                if epoch_acc > best_acc:
+                    best_acc = epoch_acc
+                    
+                # update best model based on f1_score
+                if f1 > best_f1_score:
+                    best_f1_score = f1
+                    best_model_wts = model.state_dict()
 
-                state = {'epoch': epoch, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()}
-                if best_model_filepath is not None:
-                    torch.save(state, best_model_filepath)
-
+                    state = {'epoch': epoch, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()}
+                    if best_model_filepath is not None:
+                        torch.save(state, best_model_filepath)
+        
         model_list.append(copy.deepcopy(model))
         print()
 
@@ -165,19 +183,14 @@ def run():
     print('label counts for validation set: ', get_counts(val_filenames))
     print('label counts for test set: ', get_counts(test_filenames))
 
-    train_dataset = OASIS(train_filenames)
-    val_dataset = OASIS(val_filenames)
-    test_dataset = OASIS(test_filenames)
-    '''print([y for img, y in train_dataset])
-    print([y for img, y in val_dataset])
-    print([y for img, y in test_dataset])'''
-
-    #print out a sample image shape
-    '''image_array, label = train_dataset[4]
-    print(image_array.shape)'''
+    train_dataset = OASIS(train_filenames[:3], 224)
+    val_dataset = OASIS(val_filenames[:1], 224)
+    test_dataset = OASIS(test_filenames[:1], 224)
+   
     print('training dataset size: ', len(train_dataset))
     print('validation dataset size: ', len(val_dataset))
     print('test dataset size: ', len(test_dataset))
+
     trainset_loader = DataLoader(train_dataset, batch_size=10, shuffle=True, num_workers=4)
     valset_loader = DataLoader(val_dataset, batch_size=10, shuffle=False, num_workers=4)
     testset_loader = DataLoader(test_dataset, batch_size=10, shuffle=False, num_workers=4)
@@ -188,20 +201,20 @@ def run():
     device = torch.device("cuda" if use_cuda else "cpu")
     print(device)
 
-    inception = torchvision.models.inception_v3()
     # Since imagenet has 1000 classes, we need to change our last layer according to the number of classes we have
-    n_features = inception.fc.in_features
-    inception.fc = nn.Linear(n_features, n_classes)
+    vision_model = torchvision.models.resnet50()
+    n_features = vision_model.fc.in_features
+    vision_model.fc = nn.Linear(n_features, n_classes)
 
     # Freeze layers if freeze_layer is True
-    for i, param in inception.named_parameters():
+    for i, param in vision_model.named_parameters():
         if freeze_layers:
             param.requires_grad = False
         else:
             param.requires_grad = True
     if freeze_layers:
         ct = []
-        for name, child in inception.named_children():
+        for name, child in vision_model.named_children():
             #if name == 'fc':
             if start_freeze_layer in ct:
                 for params in child.parameters():
@@ -214,27 +227,29 @@ def run():
         if m.requires_grad:
             nn.init.kaiming_normal_(m.weight)
 
-    inception.apply(init_weights)
+    #vision_model.apply(init_weights)
 
     # To view which layers are freezed and which layers are not freezed:
-    for name, child in inception.named_children():
+    for name, child in vision_model.named_children():
         for name_2, params in child.named_parameters():
             print(name_2, params.requires_grad)
 
     if use_parallel:
         print("[Using all the available GPUs]")
-        inception = nn.DataParallel(inception, device_ids=[0, 1])
+        vision_model = nn.DataParallel(vision_model, device_ids=[0, 1])
 
     dataloaders = {'train': trainset_loader, 'val': valset_loader}
+    datasets = {'train': train_dataset, 'val': val_dataset}
     dataset_sizes = {'train': len(train_dataset), 'val': len(val_dataset)}
-    optimizable_params = [param for param in inception.parameters() if param.requires_grad]
+    optimizable_params = [param for param in vision_model.parameters() if param.requires_grad]
     optimizer = optimizer_type(optimizable_params, lr=0.001)
     exp_lr_scheduler = lr_scheduler_type(optimizer, step_size=7, gamma=0.1)
     # If we want to load a model with saved parameters
     if load_model_filepath is not None:
-        load_saved_model(load_model_filepath, inception, optimizer)
-    model_list, best_model = train_model(inception,
+        load_saved_model(load_model_filepath, vision_model, optimizer)
+    model_list, best_model = train_model(vision_model,
                              dataloaders,
+                             datasets,
                              dataset_sizes,
                              criterion,
                              optimizer,
@@ -253,9 +268,13 @@ def run():
         epoch += 1
         print(report)
 
-    '''predictions = evaluate_model(best_model, testset_loader, len(test_dataset), use_cuda)
+    predictions = evaluate_model(best_model, testset_loader, len(test_dataset), use_cuda)
     true_y = [y for img, y in test_dataset]
-    print(classification_report(true_y, predictions))'''
+    best_report = classification_report(true_y, predictions)
+
+    with open(stats_filepath, 'a') as f:
+        f.write('\n Best report \n {}'.format(report))   
+        print(report)
 
 if __name__ == "__main__":
     run()
