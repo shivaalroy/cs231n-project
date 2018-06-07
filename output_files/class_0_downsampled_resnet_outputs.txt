@@ -1,0 +1,30 @@
+Epoch 0 train Loss: 0.0636 Acc: 0.4091
+Epoch 0 val Loss: 0.0507 Acc: 0.4321
+Epoch 0 macro f1_score = 0.2012 
+all f1_scores: [0.         0.60347017 0.        ] 
+
+Epoch 1 train Loss: 0.0545 Acc: 0.3954
+Epoch 1 val Loss: 0.0508 Acc: 0.4418
+Epoch 1 macro f1_score = 0.2611 
+all f1_scores: [0.20111732 0.58223235 0.        ] 
+
+Epoch 2 train Loss: 0.0543 Acc: 0.4298
+Epoch 2 val Loss: 0.0495 Acc: 0.4909
+Epoch 2 macro f1_score = 0.2994 
+all f1_scores: [0.62922374 0.26888889 0.        ] 
+
+Epoch 3 train Loss: 0.0513 Acc: 0.4107
+Epoch 3 val Loss: 0.0904 Acc: 0.4364
+Epoch 3 macro f1_score = 0.2025 
+all f1_scores: [0.         0.60759494 0.        ] 
+
+Epoch 4 train Loss: 0.0528 Acc: 0.3861
+Epoch 4 val Loss: 0.0508 Acc: 0.4364
+Epoch 4 macro f1_score = 0.2025 
+all f1_scores: [0.         0.60759494 0.        ] 
+
+Epoch 5 train Loss: 0.0534 Acc: 0.3865
+Epoch 5 val Loss: 0.0498 Acc: 0.4570
+Epoch 5 macro f1_score = 0.3060 
+all f1_scores: [0.56561546 0.35231317 0.        ] 
+
